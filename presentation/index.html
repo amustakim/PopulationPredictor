@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>US Population Predictor</title>
+  <meta charset="utf-8">
+  <meta name="description" content="US Population Predictor">
+  <meta name="author" content="">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="./assets/css/ribbons.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>US Population Predictor</h1>
+    <h2>Ahmed Mustakim (Sept 2014) | Cousera Project</h2>
+    <p><br/></p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Application Description</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Git: <a href="https://github.com/amustakim/PopulationPredictor">https://github.com/amustakim/PopulationPredictor</a></p>
+
+<p>The application uses R code to calculate the future US population between the years 2014 and 2040 using historical population data from the past 34 years (i.e. 1980 to 2013) and linear regression based on those past data points. It basically:</p>
+
+<ol>
+<li>prompts the user to select a year between 2014 and 2040 (by default 2020 is selected)</li>
+<li>then draws a scatter plot with the regression line from 1980 to 2040 and indicates future population for the selected year, right on the plot</li>
+<li>it also displays the historial data in a table, on the right-hand panel</li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Application Screenshot</h2>
+  </hgroup>
+  <article data-timings="">
+    <div style='text-align: center;'>
+    <img height='560' src='screenshot.png' />
+</div>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Code Snippet (Extract &amp; Clean Data)</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>The <code>getPop()</code> function in <code>server.R</code> extracts and cleans the historical data: </p>
+
+<pre><code class="r">library(XML)
+getPop &lt;- function() {
+#Get the population data from the Internet and parse it out into a data.frame called Pop, then format it&#39;s columns
+        theurl &lt;- &quot;http://www.usgovernmentspending.com/download_multi_year_1980_2013USb_14c2li101mcn_20s&quot;
+        tables &lt;- readHTMLTable(theurl)
+        n.rows &lt;- unlist(lapply(tables, function(t) dim(t)[1]))
+        tables[[which.max(n.rows)]]
+        x &lt;- tables$&quot;Government Spending ChartFiscal Years 1980 to 2013&quot;
+        Pop &lt;- head(x[,c(1,3)], 34, stringsAsFactors = FALSE)
+        colnames(Pop) &lt;- c(&quot;Year&quot;,&quot;Population (in millions)&quot;)
+        Pop$Year &lt;- round(as.numeric(levels(Pop$Year))[Pop$Year])
+        Pop$&quot;Population (in millions)&quot; &lt;- as.numeric(levels(Pop$&quot;Population (in millions)&quot;))[Pop$&quot;Population (in millions)&quot;]
+        return (Pop)
+}
+#Get cached data from the Internet (to save time from reloading data everytime server.R code is called)
+Pop &lt;&lt;- getPop()
+</code></pre>
+
+<pre><code>## Warning: NAs introduced by coercion
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>Code Snippet (Draw Plot)</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">#Render the scatterplot for 34 years worth of data from 1980 to 2013:
+plot(Pop, col=&quot;blue&quot;, pch=5, main=&#39;US Population trends&#39;, ylim=c(0,400), xlim=c(1980,2040))
+#Add a regression trendline
+fit &lt;- lm(Pop$&quot;Population (in millions)&quot;~Pop$Year)
+abline(fit , col=&quot;red&quot;, lwd=1, lty=1)        
+</code></pre>
+
+<p><img src="figure/plot.png" alt="plot of chunk plot"> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='Application Description'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='Application Screenshot'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='Code Snippet (Extract &amp; Clean Data)'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='Code Snippet (Draw Plot)'>
+         4
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>
